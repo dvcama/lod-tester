@@ -19,22 +19,21 @@ public class SimpleTester {
 		// rdfs:label, dc:title
 		// sameas
 		ArrayList<String> endpoints = new ArrayList<String>();
-
+		ArrayList<String> testDomains = new ArrayList<String>();
+	
+		endpoints.add("http://dati.camera.it/sparql");
 		endpoints.add("http://dwrgsweb-lb.rgs.mef.gov.it/DWRGSXL/sparql");
-
 		endpoints.add("http://lod.xdams.org/sparql");
 		endpoints.add("http://www.provincia.carboniaiglesias.it/sparql");
-		endpoints.add("http://dati.camera.it/sparql");
 		endpoints.add("http://data.cnr.it/sparql-proxy");
 		endpoints.add("http://dati.culturaitalia.it/sparql/");
 		endpoints.add("http://dati.senato.it/sparql");
 		endpoints.add("http://it.dbpedia.org/sparql");
-
 		endpoints.add("http://dati.acs.beniculturali.it/sparql");
-		endpoints.add("http://spcdata.digitpa.gov.it:8899/sparql");
-		endpoints.add("http://linkeddata.comune.fi.it:8080/sparql");
+		// endpoints.add("http://spcdata.digitpa.gov.it:8899/sparql");
+		// endpoints.add("http://linkeddata.comune.fi.it:8080/sparql");
 
-		endpoints.add("http://opendata.ccd.uniroma2.it/LMF/sparql/select");
+		// endpoints.add("http://opendata.ccd.uniroma2.it/LMF/sparql/select");
 
 		for (String endpoint : endpoints) {
 			// doTest(endpoint);
@@ -44,11 +43,16 @@ public class SimpleTester {
 			// doStats(endpoint);
 		}
 
-		verifyCloud(endpoints);
+		testDomains.add("http://rdf.freebase.com");
+		testDomains.add("http://sws.geonames.org");
+		testDomains.add("http://linkedgeodata.org");
+		testDomains.add("http://dbpedia.org");
+
+		verifyCloud(endpoints, testDomains);
 
 	}
 
-	private static void verifyCloud(ArrayList<String> endpoints) throws UnsupportedEncodingException {
+	private static void verifyCloud(ArrayList<String> endpoints, ArrayList<String> testDomains) throws UnsupportedEncodingException {
 		Map<String, String> m = new HashMap<String, String>();
 		System.out.println("collecting uris to test...");
 		for (String endpoint : endpoints) {
@@ -56,17 +60,15 @@ public class SimpleTester {
 				String anURI = GetValues.pickAnUri(endpoint + "?query=" + java.net.URLEncoder.encode(DefaultParamsProvider.pickAnUri, "UTF-8"));
 				m.put(endpoint, anURI);
 			} catch (UnsupportedEncodingException e) {
-				System.err.println("endpoint "+endpoint+" unavailable");
+				System.err.println("endpoint " + endpoint + " unavailable");
 			}
 		}
 
 		System.out.println("... find connections!");
 		for (String endpoint : endpoints) {
-			System.out.println("endpoint: "+endpoint);	
-			GetValues.findConnections(m,endpoint);
+			System.out.println("endpoint: " + endpoint);
+			GetValues.findConnections(m, testDomains, endpoint);
 		}
-	
-		
 
 	}
 

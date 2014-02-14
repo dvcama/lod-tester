@@ -12,25 +12,24 @@ public final class DefaultParamsProvider {
 	public static final String pickAnUri = "SELECT * {?s a ?class FILTER(!isBlank(?s) ) FILTER( !REGEX(STR(?s),'openlink')) FILTER(!REGEX(STR(?class),'www.w3.org'))} LIMIT 1 OFFSET 1000";
 	public static final String pickASameAs = "SELECT * {?s owl:sameAs ?class} LIMIT 1";
 
-	public static final String connectionsQuery = "SELECT * {?s ?o ?p. FILTER(REGEX(STR(?p),'^${domain}'))} LIMIT 1";
-	
+	public static final String connectionsQuery = "SELECT (COUNT(distinct ?s) AS ?no) {?s ?p ?o. FILTER(REGEX(STR(?o),'^${domain}'))}";
+
 	public static JsonNode getStatsQueries() {
 		StringBuilder statistic = new StringBuilder();
 		statistic.append("{\"list\":[");
-		
+
 		statistic.append("{\"key\":\"total number of triples\",");
 		statistic.append("\"value\":\"SELECT (COUNT(*) AS ?no) { ?s ?p []  }\"},");
-		
+
 		statistic.append("{\"key\":\"total number of entities\",");
 		statistic.append("\"value\":\"SELECT (COUNT(distinct ?s) AS ?no) { ?s a []  }\"},");
 
 		statistic.append("{\"key\":\"total number of blankNodes\",");
 		statistic.append("\"value\":\"SELECT (COUNT(distinct ?s) AS ?no) { ?s ?p [] FILTER(isBlank(?s)) }\"},");
-				
-		
-//		statistic.append("{\"key\":\"total number of distinct resource URIs in the same endpoint\",");
-//		statistic.append("\"value\":\"SELECT (COUNT(DISTINCT ?s ) AS ?no) { { ?s ?p ?o  } UNION { ?o ?p ?s } FILTER(!isBlank(?s) && !isLiteral(?s)) }\"},");
-		
+
+		// statistic.append("{\"key\":\"total number of distinct resource URIs in the same endpoint\",");
+		// statistic.append("\"value\":\"SELECT (COUNT(DISTINCT ?s ) AS ?no) { { ?s ?p ?o  } UNION { ?o ?p ?s } FILTER(!isBlank(?s) && !isLiteral(?s)) }\"},");
+
 		statistic.append("{\"key\":\"total number of distinct classes\",");
 		statistic.append("\"value\":\"SELECT (COUNT(distinct ?o) AS ?no) { ?s rdf:type ?o }\"},");
 
@@ -41,36 +40,35 @@ public final class DefaultParamsProvider {
 		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s dc:title ?o }\"},");
 
 		statistic.append("{\"key\":\"total number of entities described by rdfs:label\",");
-		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s rdfs:label ?o }\"},");
+		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s <http://www.w3.org/2000/01/rdf-schema#label> ?o }\"},");
 
 		statistic.append("{\"key\":\"total number of entities described by dc:date\",");
 		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s dc:date ?o }\"}");
-		
-		
-//		statistic.append("{\"key\":\"total number of distinct subject nodes\",");
-//		statistic.append("\"value\":\"SELECT (COUNT(DISTINCT ?s ) AS ?no) {  ?s ?p []  }\"}");
-		
-//		statistic.append("{\"key\":\"total number of distinct object nodes\",");
-//		statistic.append("\"value\":\"SELECT (COUNT(DISTINCT ?o ) AS ?no) {  ?s ?p ?o  filter(!isLiteral(?o)) }\"},");
-		 
-//		statistic.append("{\"key\":\"exhaustive list of classes used in the dataset\",");
-//		statistic.append("\"value\":\"SELECT DISTINCT ?type { ?s a ?type }\"},");
-		
-//		statistic.append("{\"key\":\"exhaustive list of properties used in the dataset\",");
-//		statistic.append("\"value\":\"SELECT DISTINCT ?p { ?s ?p ?o }\"},");
-		
-//		statistic.append("{\"key\":\"table: class vs. total number of instances of the class\",");
-//		statistic.append("\"value\":\"SELECT  ?class (COUNT(?s) AS ?count ) { ?s a ?class } GROUP BY ?class ORDER BY ?count\"},");
 
-//		statistic.append("{\"key\":\"table: property vs. total number of triples using the property\",");
-//		statistic.append("\"value\":\"SELECT  ?p (COUNT(?s) AS ?count ) { ?s ?p ?o } GROUP BY ?p ORDER BY ?count\"},");
-		
-//		statistic.append("{\"key\":\"table: property vs. total number of distinct subjects in triples using the property\",");
-//		statistic.append("\"value\":\"SELECT  ?p (COUNT(DISTINCT ?s ) AS ?count ) { ?s ?p ?o } GROUP BY ?p ORDER BY ?count\"},");
-		
-//		statistic.append("{\"key\":\"table: property vs. total number of distinct objects in triples using the property\",");
-//		statistic.append("\"value\":\"SELECT  ?p (COUNT(DISTINCT ?o ) AS ?count ) { ?s ?p ?o } GROUP BY ?p ORDER BY ?count\"}");
-		
+		// statistic.append("{\"key\":\"total number of distinct subject nodes\",");
+		// statistic.append("\"value\":\"SELECT (COUNT(DISTINCT ?s ) AS ?no) {  ?s ?p []  }\"}");
+
+		// statistic.append("{\"key\":\"total number of distinct object nodes\",");
+		// statistic.append("\"value\":\"SELECT (COUNT(DISTINCT ?o ) AS ?no) {  ?s ?p ?o  filter(!isLiteral(?o)) }\"},");
+
+		// statistic.append("{\"key\":\"exhaustive list of classes used in the dataset\",");
+		// statistic.append("\"value\":\"SELECT DISTINCT ?type { ?s a ?type }\"},");
+
+		// statistic.append("{\"key\":\"exhaustive list of properties used in the dataset\",");
+		// statistic.append("\"value\":\"SELECT DISTINCT ?p { ?s ?p ?o }\"},");
+
+		// statistic.append("{\"key\":\"table: class vs. total number of instances of the class\",");
+		// statistic.append("\"value\":\"SELECT  ?class (COUNT(?s) AS ?count ) { ?s a ?class } GROUP BY ?class ORDER BY ?count\"},");
+
+		// statistic.append("{\"key\":\"table: property vs. total number of triples using the property\",");
+		// statistic.append("\"value\":\"SELECT  ?p (COUNT(?s) AS ?count ) { ?s ?p ?o } GROUP BY ?p ORDER BY ?count\"},");
+
+		// statistic.append("{\"key\":\"table: property vs. total number of distinct subjects in triples using the property\",");
+		// statistic.append("\"value\":\"SELECT  ?p (COUNT(DISTINCT ?s ) AS ?count ) { ?s ?p ?o } GROUP BY ?p ORDER BY ?count\"},");
+
+		// statistic.append("{\"key\":\"table: property vs. total number of distinct objects in triples using the property\",");
+		// statistic.append("\"value\":\"SELECT  ?p (COUNT(DISTINCT ?o ) AS ?count ) { ?s ?p ?o } GROUP BY ?p ORDER BY ?count\"}");
+
 		statistic.append("]}");
 		ObjectMapper m = new ObjectMapper();
 		JsonNode rootNode = null;

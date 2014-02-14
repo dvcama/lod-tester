@@ -22,14 +22,12 @@ public class GetValues {
 
 	public static String pickAnUri(String endpointUrl) throws UnsupportedEncodingException {
 		String uri = "";
-
 		HttpClient client = new HttpClient();
 		GetMethod method = new GetMethod(endpointUrl);
 		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 		method.addRequestHeader("Accept", "application/sparql-results+json");
 		try {
 			int statusCode = client.executeMethod(method);
-
 			if (statusCode != HttpStatus.SC_OK) {
 				// System.out.println("Method failed: " +
 				// method.getStatusLine());
@@ -56,20 +54,20 @@ public class GetValues {
 
 	public static String getTot(String endpointUrl) {
 		String result = "";
-
 		HttpClient client = new HttpClient();
 		GetMethod method = new GetMethod(endpointUrl);
 		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 		method.addRequestHeader("Accept", "application/sparql-results+json");
 		try {
 			int statusCode = client.executeMethod(method);
-			// System.out.println(method.getResponseBodyAsString());
+			//System.out.println(method.getResponseBodyAsString());
 			ObjectMapper m = new ObjectMapper();
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(method.getResponseBodyAsStream(), writer, "UTF-8");
 			String responseString = writer.toString();
 			JsonNode rootNode = m.readTree(responseString);
-			result = rootNode.findPath("no").findPath("value").getTextValue();
+			
+			return rootNode.findPath("no").findPath("value").getTextValue();
 		} catch (Exception e) {
 	 
 		} finally {
@@ -81,11 +79,8 @@ public class GetValues {
 
 	}
 
-	public static List<String> findConnections(Map<String, String> m, String thisEndpoint) throws UnsupportedEncodingException {
+	public static List<String> findConnections(Map<String, String> m, ArrayList<String> testDomains, String thisEndpoint) throws UnsupportedEncodingException {
 		List<String> result = new ArrayList<String>();
-		
-		
-		
 		for (String endpoint : m.keySet()) {
 			if(!endpoint.equals(thisEndpoint)){
 				String domain = m.get(endpoint).replaceAll("(http://[^/:]+).+", "$1");
@@ -95,13 +90,14 @@ public class GetValues {
 				String tot =  getTot(thisEndpoint + "?query=" + URLEncoder.encode(query, "UTF-8"));
 				System.out.println(tot);
 			}
-			
-			
-			
 		}
-		
-		
-		
+		for (String domain : testDomains) {
+			System.out.println("\t\tdomain "+domain);
+			String query = DefaultParamsProvider.connectionsQuery.replaceAll("\\$\\{domain\\}",domain);
+			System.out.println("\t\tquery "+query);
+			String tot =  getTot(thisEndpoint + "?query=" + URLEncoder.encode(query, "UTF-8"));
+			System.out.println(tot);
+		}
 		return result;
 	}
 }
