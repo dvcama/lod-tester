@@ -58,18 +58,20 @@ public class GetValues {
 		GetMethod method = new GetMethod(endpointUrl);
 		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 		method.addRequestHeader("Accept", "application/sparql-results+json");
+		int statusCode = 0;
+		String responseString = "";
 		try {
-			int statusCode = client.executeMethod(method);
-			//System.out.println(method.getResponseBodyAsString());
+			statusCode = client.executeMethod(method);
+			// System.out.println(method.getResponseBodyAsString());
 			ObjectMapper m = new ObjectMapper();
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(method.getResponseBodyAsStream(), writer, "UTF-8");
-			String responseString = writer.toString();
+			responseString = writer.toString();
 			JsonNode rootNode = m.readTree(responseString);
-			
+
 			return rootNode.findPath("no").findPath("value").getTextValue();
 		} catch (Exception e) {
-	 
+			System.out.println("statusCode: " + statusCode + " | " + responseString);
 		} finally {
 			// Release the connection.
 			method.releaseConnection();
@@ -81,23 +83,24 @@ public class GetValues {
 
 	public static List<String> findConnections(Map<String, String> m, ArrayList<String> testDomains, String thisEndpoint) throws UnsupportedEncodingException {
 		List<String> result = new ArrayList<String>();
+		for (String domain : testDomains) {
+			System.out.println("\t\tdomain " + domain);
+			String query = DefaultParamsProvider.connectionsQuery.replaceAll("\\$\\{domain\\}", domain);
+			System.out.println("\t\tquery " + query);
+			String tot = getTot(thisEndpoint + "?query=" + URLEncoder.encode(query, "UTF-8"));
+			System.out.println(tot);
+		}		
 		for (String endpoint : m.keySet()) {
-			if(!endpoint.equals(thisEndpoint)){
+			if (!endpoint.equals(thisEndpoint)) {
 				String domain = m.get(endpoint).replaceAll("(http://[^/:]+).+", "$1");
-				System.out.println("\t\tdomain "+domain);
-				String query = DefaultParamsProvider.connectionsQuery.replaceAll("\\$\\{domain\\}",domain);
-				System.out.println("\t\tquery "+query);
-				String tot =  getTot(thisEndpoint + "?query=" + URLEncoder.encode(query, "UTF-8"));
+				System.out.println("\t\tdomain " + domain);
+				String query = DefaultParamsProvider.connectionsQuery.replaceAll("\\$\\{domain\\}", domain);
+				System.out.println("\t\tquery " + query);
+				String tot = getTot(thisEndpoint + "?query=" + URLEncoder.encode(query, "UTF-8"));
 				System.out.println(tot);
 			}
 		}
-		for (String domain : testDomains) {
-			System.out.println("\t\tdomain "+domain);
-			String query = DefaultParamsProvider.connectionsQuery.replaceAll("\\$\\{domain\\}",domain);
-			System.out.println("\t\tquery "+query);
-			String tot =  getTot(thisEndpoint + "?query=" + URLEncoder.encode(query, "UTF-8"));
-			System.out.println(tot);
-		}
+
 		return result;
 	}
 }

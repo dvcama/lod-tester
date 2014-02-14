@@ -20,16 +20,16 @@ public class SimpleTester {
 		// sameas
 		ArrayList<String> endpoints = new ArrayList<String>();
 		ArrayList<String> testDomains = new ArrayList<String>();
-	
+
 		endpoints.add("http://dati.camera.it/sparql");
-		endpoints.add("http://dwrgsweb-lb.rgs.mef.gov.it/DWRGSXL/sparql");
+		/*	endpoints.add("http://dwrgsweb-lb.rgs.mef.gov.it/DWRGSXL/sparql");
 		endpoints.add("http://lod.xdams.org/sparql");
 		endpoints.add("http://www.provincia.carboniaiglesias.it/sparql");
 		endpoints.add("http://data.cnr.it/sparql-proxy");
 		endpoints.add("http://dati.culturaitalia.it/sparql/");
 		endpoints.add("http://dati.senato.it/sparql");
 		endpoints.add("http://it.dbpedia.org/sparql");
-		endpoints.add("http://dati.acs.beniculturali.it/sparql");
+		endpoints.add("http://dati.acs.beniculturali.it/sparql");*/
 		// endpoints.add("http://spcdata.digitpa.gov.it:8899/sparql");
 		// endpoints.add("http://linkeddata.comune.fi.it:8080/sparql");
 
