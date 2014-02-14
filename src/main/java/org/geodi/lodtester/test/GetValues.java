@@ -3,19 +3,20 @@ package org.geodi.lodtester.test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.geodi.lodtester.DefaultParamsProvider;
 
 public class GetValues {
 
@@ -62,7 +63,6 @@ public class GetValues {
 		method.addRequestHeader("Accept", "application/sparql-results+json");
 		try {
 			int statusCode = client.executeMethod(method);
- 
 			// System.out.println(method.getResponseBodyAsString());
 			ObjectMapper m = new ObjectMapper();
 			StringWriter writer = new StringWriter();
@@ -71,13 +71,37 @@ public class GetValues {
 			JsonNode rootNode = m.readTree(responseString);
 			result = rootNode.findPath("no").findPath("value").getTextValue();
 		} catch (Exception e) {
-			// e.printStackTrace();
+	 
 		} finally {
 			// Release the connection.
 			method.releaseConnection();
 		}
 
-		return result;
+		return "0";
 
+	}
+
+	public static List<String> findConnections(Map<String, String> m, String thisEndpoint) throws UnsupportedEncodingException {
+		List<String> result = new ArrayList<String>();
+		
+		
+		
+		for (String endpoint : m.keySet()) {
+			if(!endpoint.equals(thisEndpoint)){
+				String domain = m.get(endpoint).replaceAll("(http://[^/:]+).+", "$1");
+				System.out.println("\t\tdomain "+domain);
+				String query = DefaultParamsProvider.connectionsQuery.replaceAll("\\$\\{domain\\}",domain);
+				System.out.println("\t\tquery "+query);
+				String tot =  getTot(thisEndpoint + "?query=" + URLEncoder.encode(query, "UTF-8"));
+				System.out.println(tot);
+			}
+			
+			
+			
+		}
+		
+		
+		
+		return result;
 	}
 }

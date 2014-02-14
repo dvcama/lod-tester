@@ -4,7 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.codehaus.jackson.JsonNode;
 import org.geodi.lodtester.test.HttpTester;
@@ -13,10 +15,14 @@ import org.geodi.lodtester.test.GetValues;
 public class SimpleTester {
 
 	public static void main(String[] args) throws UnsupportedEncodingException {
-		// TODO Auto-generated method stub
+		// TODO
+		// rdfs:label, dc:title
+		// sameas
 		ArrayList<String> endpoints = new ArrayList<String>();
 
-		//endpoints.add("http://lod.xdams.org/sparql");
+		endpoints.add("http://dwrgsweb-lb.rgs.mef.gov.it/DWRGSXL/sparql");
+
+		endpoints.add("http://lod.xdams.org/sparql");
 		endpoints.add("http://www.provincia.carboniaiglesias.it/sparql");
 		endpoints.add("http://dati.camera.it/sparql");
 		endpoints.add("http://data.cnr.it/sparql-proxy");
@@ -35,8 +41,32 @@ public class SimpleTester {
 		}
 
 		for (String endpoint : endpoints) {
-			doStats(endpoint);
+			// doStats(endpoint);
 		}
+
+		verifyCloud(endpoints);
+
+	}
+
+	private static void verifyCloud(ArrayList<String> endpoints) throws UnsupportedEncodingException {
+		Map<String, String> m = new HashMap<String, String>();
+		System.out.println("collecting uris to test...");
+		for (String endpoint : endpoints) {
+			try {
+				String anURI = GetValues.pickAnUri(endpoint + "?query=" + java.net.URLEncoder.encode(DefaultParamsProvider.pickAnUri, "UTF-8"));
+				m.put(endpoint, anURI);
+			} catch (UnsupportedEncodingException e) {
+				System.err.println("endpoint "+endpoint+" unavailable");
+			}
+		}
+
+		System.out.println("... find connections!");
+		for (String endpoint : endpoints) {
+			System.out.println("endpoint: "+endpoint);	
+			GetValues.findConnections(m,endpoint);
+		}
+	
+		
 
 	}
 
@@ -54,8 +84,7 @@ public class SimpleTester {
 				// TODO Auto-generated catch block
 				System.out.println(0);
 			}
-			
-			
+
 		}
 
 	}
@@ -93,12 +122,6 @@ public class SimpleTester {
 			System.out.println("FAIL");
 		}
 
-		System.out.print("the endpoint is simple to find:\t\t\t\t***********\t\t");
-		if (endpoint.equals(endpoint.replaceAll("(http://[^/]+/).*", "$1sparql"))) {
-			System.out.println("PASS");
-		} else {
-			System.out.println("FAIL");
-		}
 		System.out.print("the endpoint URL is easy to deduce from resources:\t***********\t\t");
 		if (endpoint.equals(endpoint.replaceAll("(http://[^/]+/).*", "$1sparql"))) {
 			System.out.println("PASS");
