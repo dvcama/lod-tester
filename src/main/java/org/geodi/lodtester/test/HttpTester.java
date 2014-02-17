@@ -55,6 +55,37 @@ public class HttpTester {
 
 	}
 
+	public static boolean testJsonP(String anURI) {
+		boolean isOk = false;
+		if (anURI != null && !anURI.equals("")) {
+			HttpClient client = new HttpClient();
+			GetMethod method = new GetMethod(anURI + "&callback=dvcama");
+			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+			method.addRequestHeader("Accept", "application/sparql-results+json");
+			try {
+				int statusCode = client.executeMethod(method);
+				StringWriter writer = new StringWriter();
+				IOUtils.copy(method.getResponseBodyAsStream(), writer, "UTF-8");
+				String responseString = writer.toString();
+				// System.out.println(responseString);
+				if (responseString.contains("dvcama") || responseString.contains("dvcama")) {
+					isOk = true;
+				}
+			} catch (HttpException e) {
+				System.err.println("Fatal protocol violation: " + e.getMessage());
+				// e.printStackTrace();
+			} catch (IOException e) {
+				System.err.println("Fatal transport error: " + e.getMessage());
+				// e.printStackTrace();
+			} finally {
+				// Release the connection.
+				method.releaseConnection();
+			}
+		}
+		return isOk;
+	}
+ 
+
 	public static boolean testAvailability(String anURI, boolean hasForm) {
 		boolean isOk = false;
 		if (anURI != null && !anURI.equals("")) {

@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -18,55 +19,66 @@ public class SimpleTester {
 		// TODO
 		// rdfs:label, dc:title
 		// sameas
-		ArrayList<String> endpoints = new ArrayList<String>();
+		Map<String, String> endpoints = new LinkedHashMap<String, String>();
 		ArrayList<String> testDomains = new ArrayList<String>();
 
-		endpoints.add("http://dati.camera.it/sparql");
-		/*	endpoints.add("http://dwrgsweb-lb.rgs.mef.gov.it/DWRGSXL/sparql");
-		endpoints.add("http://lod.xdams.org/sparql");
-		endpoints.add("http://www.provincia.carboniaiglesias.it/sparql");
-		endpoints.add("http://data.cnr.it/sparql-proxy");
-		endpoints.add("http://dati.culturaitalia.it/sparql/");
-		endpoints.add("http://dati.senato.it/sparql");
-		endpoints.add("http://it.dbpedia.org/sparql");
-		endpoints.add("http://dati.acs.beniculturali.it/sparql");*/
-		// endpoints.add("http://spcdata.digitpa.gov.it:8899/sparql");
-		// endpoints.add("http://linkeddata.comune.fi.it:8080/sparql");
-
-		// endpoints.add("http://opendata.ccd.uniroma2.it/LMF/sparql/select");
-
-		for (String endpoint : endpoints) {
-			// doTest(endpoint);
+		// ENDPOINT / GRAPH
+		endpoints.put("http://dati.camera.it/sparql", "http://dati.camera.it/ocd/");
+		endpoints.put("http://dwrgsweb-lb.rgs.mef.gov.it/DWRGSXL/sparql","");
+		endpoints.put("http://lod.xdams.org/sparql","");
+		endpoints.put("http://dati.senato.it/sparql","");
+		endpoints.put("http://it.dbpedia.org/sparql","");//
+		endpoints.put("http://spcdata.digitpa.gov.it:8899/sparql","");
+		endpoints.put("http://dati.culturaitalia.it/sparql/","");
+		endpoints.put("http://data.cnr.it/sparql-proxy","");
+		endpoints.put("http://www.provincia.carboniaiglesias.it/sparql","");
+		endpoints.put("http://linkeddata.comune.fi.it:8080/sparql","");
+		endpoints.put("http://dati.acs.beniculturali.it/sparql","");
+		endpoints.put("http://spcdata.digitpa.gov.it:8899/sparql","");
+		endpoints.put("http://linkeddata.comune.fi.it:8080/sparql","");
+		
+		for (Map.Entry<String, String> endpoint : endpoints.entrySet()) {
+			  doTest(endpoint.getKey());
 		}
 
-		for (String endpoint : endpoints) {
-			// doStats(endpoint);
+		for (Map.Entry<String, String> endpoint : endpoints.entrySet()) {
+			  doStats(endpoint.getKey());
 		}
-
+		
+//		testDomains.add("http://www.provincia.carboniaiglesias.it");
+//		testDomains.add("http://linkeddata.comune.fi.it");
+//		testDomains.add("http://spcdata.digitpa.gov.it");
+//		testDomains.add("http://dati.camera.it");
+//		testDomains.add("http://www.cnr.it");
+//
+		
+		// MORE DOMAINS TO TEST THE CLOUD
 		testDomains.add("http://rdf.freebase.com");
 		testDomains.add("http://sws.geonames.org");
 		testDomains.add("http://linkedgeodata.org");
 		testDomains.add("http://dbpedia.org");
+		testDomains.add("http://aims.fao.org");
+//		
 
-		verifyCloud(endpoints, testDomains);
+
+		//verifyCloud(endpoints, testDomains);
 
 	}
 
-	private static void verifyCloud(ArrayList<String> endpoints, ArrayList<String> testDomains) throws UnsupportedEncodingException {
+	private static void verifyCloud(Map<String, String> endpoints, ArrayList<String> testDomains) throws UnsupportedEncodingException {
 		Map<String, String> m = new HashMap<String, String>();
 		System.out.println("collecting uris to test...");
-		for (String endpoint : endpoints) {
+		for (Map.Entry<String, String> endpoint : endpoints.entrySet()) {
 			try {
 				String anURI = GetValues.pickAnUri(endpoint + "?query=" + java.net.URLEncoder.encode(DefaultParamsProvider.pickAnUri, "UTF-8"));
-				m.put(endpoint, anURI);
+				m.put(endpoint.getKey(), anURI);
 			} catch (UnsupportedEncodingException e) {
 				System.err.println("endpoint " + endpoint + " unavailable");
 			}
 		}
-
 		System.out.println("... find connections!");
-		for (String endpoint : endpoints) {
-			System.out.println("endpoint: " + endpoint);
+		for (Map.Entry<String, String> endpoint : endpoints.entrySet()) {
+			System.out.println("\n\n---------------\n\nendpoint: " + endpoint.getKey());
 			GetValues.findConnections(m, testDomains, endpoint);
 		}
 
@@ -77,11 +89,11 @@ public class SimpleTester {
 
 		JsonNode list = DefaultParamsProvider.getStatsQueries();
 		for (JsonNode jsonNode : list.findPath("list")) {
-			System.out.println("\n" + jsonNode.findPath("key").toString());
+			System.out.print(jsonNode.findPath("key").toString());
 			try {
 				String tot = GetValues.getTot(endpoint + "?query=" + URLEncoder.encode(jsonNode.findPath("value").getValueAsText(), "UTF-8"));
 				NumberFormat nf = NumberFormat.getNumberInstance(Locale.ITALIAN);
-				System.out.println(nf.format(Integer.parseInt(tot)));
+				System.out.println("\t"+nf.format(Integer.parseInt(tot)));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				System.out.println(0);
@@ -117,6 +129,19 @@ public class SimpleTester {
 		} catch (Exception e) {
 			System.out.println("FAIL");
 		}
+
+		System.out.print("the endpoint supports JSONP calls:\t\t\t***********\t\t");
+		try {
+			if (HttpTester.testJsonP(endpoint + "?query=" + java.net.URLEncoder.encode(DefaultParamsProvider.standardQuery, "UTF-8"))) {
+				System.out.println("PASS");
+			} else {
+				System.out.println("FAIL");
+			}
+		} catch (Exception e) {
+			System.out.println("FAIL");
+		}
+
+ 
 		System.out.print("the endpoint use port 80:\t\t\t\t***********\t\t");
 		if (endpoint.equals(endpoint.replaceAll(":[0-9]+/", "/"))) {
 			System.out.println("PASS");

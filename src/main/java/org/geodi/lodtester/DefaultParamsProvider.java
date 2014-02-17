@@ -1,6 +1,7 @@
 package org.geodi.lodtester;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
@@ -12,7 +13,43 @@ public final class DefaultParamsProvider {
 	public static final String pickAnUri = "SELECT * {?s a ?class FILTER(!isBlank(?s) ) FILTER( !REGEX(STR(?s),'openlink')) FILTER(!REGEX(STR(?class),'www.w3.org'))} LIMIT 1 OFFSET 1000";
 	public static final String pickASameAs = "SELECT * {?s owl:sameAs ?class} LIMIT 1";
 
-	public static final String connectionsQuery = "SELECT (COUNT(distinct ?s) AS ?no) {?s ?p ?o. FILTER(REGEX(STR(?o),'^${domain}'))}";
+	public static final String connectionsQuery = "SELECT (COUNT(distinct ?o) AS ?no) ${graph} where {[] <${prop}> ?o. FILTER(regex(STR(?o),'^${domain}'))}";
+
+	public static final String objPropQuery = "select distinct ?p ${graph}  where {[] ?p ?o. FILTER(isURI(?o)) FILTER(!regex(STR(?o),'^${domain}'))}";
+
+	public static ArrayList<String> skipProps() {
+		ArrayList<String> a = new ArrayList<String>();
+		
+		/* skipping some properties that probably are not connected to other endpoints*/
+		
+		a.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+		a.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest");
+		a.add("http://www.w3.org/2000/01/rdf-schema#domain");
+		a.add("http://www.w3.org/2000/01/rdf-schema#range");
+		a.add("http://www.w3.org/2000/01/rdf-schema#isDefinedBy");
+		a.add("http://www.w3.org/2000/01/rdf-schema#subClassOf");
+		a.add("http://www.w3.org/2000/01/rdf-schema#subPropertyOf");
+		a.add("http://www.w3.org/2002/07/owl#onProperty");
+		a.add("http://www.w3.org/2002/07/owl#someValuesFrom");
+		a.add("http://xmlns.com/foaf/0.1/depiction");
+		a.add("http://xmlns.com/foaf/0.1/accountServiceHomepage");
+		a.add("http://xmlns.com/foaf/0.1/page");
+		a.add("http://xmlns.com/foaf/0.1/homepage");
+		a.add("http://dati.camera.it"); // prefix
+		a.add("http://lod.xdams.org"); // prefix
+		a.add("http://www.openlinksw.com"); // prefix
+		a.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#_1");
+		a.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#_2");
+		a.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#_3");
+		a.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#_4");
+		a.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#_5"); 
+		a.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#first");
+		a.add("http://www.w3.org/2002/07/owl#priorVersion");
+		a.add("http://www.w3.org/2002/07/owl#imports");
+		
+		
+		return a;
+	}
 
 	public static JsonNode getStatsQueries() {
 		StringBuilder statistic = new StringBuilder();
@@ -22,7 +59,7 @@ public final class DefaultParamsProvider {
 		statistic.append("\"value\":\"SELECT (COUNT(*) AS ?no) { ?s ?p []  }\"},");
 
 		statistic.append("{\"key\":\"total number of entities\",");
-		statistic.append("\"value\":\"SELECT (COUNT(distinct ?s) AS ?no) { ?s a []  }\"},");
+		statistic.append("\"value\":\"SELECT (COUNT(?s) AS ?no) { ?s a []  }\"},");
 
 		statistic.append("{\"key\":\"total number of blankNodes\",");
 		statistic.append("\"value\":\"SELECT (COUNT(distinct ?s) AS ?no) { ?s ?p [] FILTER(isBlank(?s)) }\"},");
@@ -31,19 +68,19 @@ public final class DefaultParamsProvider {
 		// statistic.append("\"value\":\"SELECT (COUNT(DISTINCT ?s ) AS ?no) { { ?s ?p ?o  } UNION { ?o ?p ?s } FILTER(!isBlank(?s) && !isLiteral(?s)) }\"},");
 
 		statistic.append("{\"key\":\"total number of distinct classes\",");
-		statistic.append("\"value\":\"SELECT (COUNT(distinct ?o) AS ?no) { ?s rdf:type ?o }\"},");
+		statistic.append("\"value\":\"SELECT (COUNT(distinct ?o) AS ?no) { ?s a ?o }\"},");
 
 		statistic.append("{\"key\":\"total number of distinct predicates\",");
 		statistic.append("\"value\":\"SELECT (count(distinct ?p) AS ?no) { ?s ?p ?o }\"},");
 
 		statistic.append("{\"key\":\"total number of entities described by dc:title\",");
-		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s dc:title ?o }\"},");
+		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s <http://purl.org/dc/elements/1.1/title> ?o }\"},");
 
 		statistic.append("{\"key\":\"total number of entities described by rdfs:label\",");
 		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s <http://www.w3.org/2000/01/rdf-schema#label> ?o }\"},");
 
 		statistic.append("{\"key\":\"total number of entities described by dc:date\",");
-		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s dc:date ?o }\"}");
+		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s <http://purl.org/dc/elements/1.1/date>  ?o }\"}");
 
 		// statistic.append("{\"key\":\"total number of distinct subject nodes\",");
 		// statistic.append("\"value\":\"SELECT (COUNT(DISTINCT ?s ) AS ?no) {  ?s ?p []  }\"}");
