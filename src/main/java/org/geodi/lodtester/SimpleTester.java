@@ -23,7 +23,9 @@ public class SimpleTester {
 		ArrayList<String> testDomains = new ArrayList<String>();
 
 		// ENDPOINT / GRAPH
-		endpoints.put("http://dati.camera.it/sparql", "http://dati.camera.it/ocd/");
+		endpoints.put("http://linkedstat.spaziodati.eu/sparql", "");
+		
+		endpoints.put("http://dati.camera.it/sparql", "");
 		endpoints.put("http://dwrgsweb-lb.rgs.mef.gov.it/DWRGSXL/sparql","");
 		endpoints.put("http://lod.xdams.org/sparql","");
 		endpoints.put("http://dati.senato.it/sparql","");
@@ -34,8 +36,6 @@ public class SimpleTester {
 		endpoints.put("http://www.provincia.carboniaiglesias.it/sparql","");
 		endpoints.put("http://linkeddata.comune.fi.it:8080/sparql","");
 		endpoints.put("http://dati.acs.beniculturali.it/sparql","");
-		endpoints.put("http://spcdata.digitpa.gov.it:8899/sparql","");
-		endpoints.put("http://linkeddata.comune.fi.it:8080/sparql","");
 		
 		for (Map.Entry<String, String> endpoint : endpoints.entrySet()) {
 			  doTest(endpoint.getKey());
