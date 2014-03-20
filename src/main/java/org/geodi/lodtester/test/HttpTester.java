@@ -15,14 +15,15 @@ import org.apache.commons.io.IOUtils;
 
 public class HttpTester {
 
-	public static boolean testSpecificContent(String endpointUrl, String contentType) throws UnsupportedEncodingException {
+	public static boolean testSpecificContent(String endpointUrl, String contentType) throws HttpException, IOException {
 		boolean isOk = false;
 
 		HttpClient client = new HttpClient();
 		// Create a method instance.
 		GetMethod method = new GetMethod(endpointUrl);
 		// Provide custom retry handler is necessary
-		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+		method.getParams().setSoTimeout(60000);
+		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(2, false));
 		method.addRequestHeader("Accept", contentType);
 		try {
 			// Execute the method.
@@ -40,12 +41,6 @@ public class HttpTester {
 					break;
 				}
 			}
-		} catch (HttpException e) {
-			System.err.println("Fatal protocol violation: " + e.getMessage());
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.err.println("Fatal transport error: " + e.getMessage());
-			e.printStackTrace();
 		} finally {
 			// Release the connection.
 			method.releaseConnection();
@@ -55,12 +50,13 @@ public class HttpTester {
 
 	}
 
-	public static boolean testJsonP(String anURI) {
+	public static boolean testJsonP(String anURI) throws IOException {
 		boolean isOk = false;
 		if (anURI != null && !anURI.equals("")) {
 			HttpClient client = new HttpClient();
 			GetMethod method = new GetMethod(anURI + "&callback=dvcama");
-			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+			method.getParams().setSoTimeout(60000);
+			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(2, false));
 			method.addRequestHeader("Accept", "application/sparql-results+json");
 			try {
 				int statusCode = client.executeMethod(method);
@@ -71,12 +67,6 @@ public class HttpTester {
 				if (responseString.contains("dvcama") || responseString.contains("dvcama")) {
 					isOk = true;
 				}
-			} catch (HttpException e) {
-				System.err.println("Fatal protocol violation: " + e.getMessage());
-				// e.printStackTrace();
-			} catch (IOException e) {
-				System.err.println("Fatal transport error: " + e.getMessage());
-				// e.printStackTrace();
 			} finally {
 				// Release the connection.
 				method.releaseConnection();
@@ -84,14 +74,14 @@ public class HttpTester {
 		}
 		return isOk;
 	}
- 
 
-	public static boolean testAvailability(String anURI, boolean hasForm) {
+	public static boolean testAvailability(String anURI, boolean hasForm, boolean just404) throws HttpException, IOException {
 		boolean isOk = false;
 		if (anURI != null && !anURI.equals("")) {
 			HttpClient client = new HttpClient();
 			GetMethod method = new GetMethod(anURI);
-			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+			method.getParams().setSoTimeout(60000);
+			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(2, false));
 			method.addRequestHeader("Accept", "text/html");
 			try {
 				int statusCode = client.executeMethod(method);
@@ -105,14 +95,15 @@ public class HttpTester {
 				} else {
 					if (statusCode < 400) {
 						isOk = true;
+					} else {
+						if (just404 && statusCode == 404) {
+							isOk = false;
+						} else {
+							isOk = true;
+						}
 					}
+
 				}
-			} catch (HttpException e) {
-				System.err.println("Fatal protocol violation: " + e.getMessage());
-				// e.printStackTrace();
-			} catch (IOException e) {
-				System.err.println("Fatal transport error: " + e.getMessage());
-				// e.printStackTrace();
 			} finally {
 				// Release the connection.
 				method.releaseConnection();

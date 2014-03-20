@@ -10,7 +10,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 public final class DefaultParamsProvider {
 
 	public static final String standardQuery = "SELECT * {?s ?p ?o} LIMIT 1";
-	public static final String pickAnUri = "SELECT * {?s a ?class FILTER(!isBlank(?s) ) FILTER( !REGEX(STR(?s),'openlink')) FILTER(!REGEX(STR(?class),'www.w3.org')) FILTER(REGEX(STR(?s),'^http://'))} LIMIT 1 OFFSET 1000";
+	public static final String pickAnUriSameDomain = "SELECT * {?s ?any ?class   FILTER(REGEX(STR(?s),'${domain}'))} LIMIT 1 OFFSET 1000";
+	public static final String pickAnUri = "SELECT * {?s ?any ?class  FILTER( !REGEX(STR(?s),'openlink')) FILTER(!REGEX(STR(?class),'www.w3.org')) FILTER(REGEX(STR(?s),'^http://'))} LIMIT 1 OFFSET 1000";
 	public static final String pickASameAs = "SELECT * {?s owl:sameAs ?class} LIMIT 1";
 
 	public static final String connectionsQuery = "SELECT (COUNT(distinct ?o) AS ?no) ${graph} where {[] <${prop}> ?o. FILTER(regex(STR(?o),'^${domain}'))}";

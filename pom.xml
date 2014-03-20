@@ -28,6 +28,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.7.0</version>
+		</dependency>
 		<!-- Spring and Transactions -->
 		<dependency>
 			<groupId>org.springframework</groupId>

@@ -20,34 +20,67 @@ import org.geodi.lodtester.DefaultParamsProvider;
 
 public class GetValues {
 
-	public static String pickAnUri(String endpointUrl) throws UnsupportedEncodingException {
+	public static String pickAnUri(String endpointUrl) throws IOException {
+
+		// same domain
 		String uri = "";
+
 		HttpClient client = new HttpClient();
-		GetMethod method = new GetMethod(endpointUrl);
+		String aEndpointUri = endpointUrl;
+		String domain = aEndpointUri.replaceAll("(^http://[^/]+).*", "$1");
+		String query = DefaultParamsProvider.pickAnUriSameDomain;
+		aEndpointUri += java.net.URLEncoder.encode(query.replaceAll("\\$\\{domain\\}", domain), "UTF-8");
+		GetMethod method = new GetMethod(aEndpointUri);
 		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 		method.addRequestHeader("Accept", "application/sparql-results+json");
 		try {
 			int statusCode = client.executeMethod(method);
 			if (statusCode != HttpStatus.SC_OK) {
-				// System.out.println("Method failed: " +
-				// method.getStatusLine());
-				// System.out.println(endpointUrl);
 				return uri;
 			}
-			// System.out.println(method.getResponseBodyAsString());
 			ObjectMapper m = new ObjectMapper();
 			StringWriter writer = new StringWriter();
 			IOUtils.copy(method.getResponseBodyAsStream(), writer, "UTF-8");
 			String responseString = writer.toString();
 			JsonNode rootNode = m.readTree(responseString);
 			uri = rootNode.findPath("s").findPath("value").getTextValue();
-		} catch (Exception e) {
-			// e.printStackTrace();
+		} catch (Exception a) {
 		} finally {
 			// Release the connection.
 			method.releaseConnection();
 		}
 
+		// other domain
+		if (uri.equals("")) {
+			aEndpointUri = endpointUrl;
+			client = new HttpClient();
+			query = DefaultParamsProvider.pickAnUri;
+			aEndpointUri += java.net.URLEncoder.encode(query.replaceAll("\\$\\{domain\\}", domain), "UTF-8");
+			method = new GetMethod(aEndpointUri);
+			uri = "";
+			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+			method.addRequestHeader("Accept", "application/sparql-results+json");
+			try {
+				int statusCode = client.executeMethod(method);
+				if (statusCode != HttpStatus.SC_OK) {
+					// System.out.println("Method failed: " +
+					// method.getStatusLine());
+					// System.out.println(endpointUrl);
+					return uri;
+				}
+				// System.out.println(method.getResponseBodyAsString());
+				ObjectMapper m = new ObjectMapper();
+				StringWriter writer = new StringWriter();
+				IOUtils.copy(method.getResponseBodyAsStream(), writer, "UTF-8");
+				String responseString = writer.toString();
+				JsonNode rootNode = m.readTree(responseString);
+				uri = rootNode.findPath("s").findPath("value").getTextValue();
+			} finally {
+				// Release the connection.
+				method.releaseConnection();
+			}
+
+		}
 		return uri;
 
 	}
