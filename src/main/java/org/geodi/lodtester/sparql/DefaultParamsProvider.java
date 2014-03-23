@@ -76,6 +76,9 @@ public final class DefaultParamsProvider {
 		statistic.append("{\"key\":\"total number of entities described by dc:title\",");
 		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s <http://purl.org/dc/elements/1.1/title> ?o }\"},");
 
+		statistic.append("{\"key\":\"total number of entities described by dcterms:title\",");
+		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s <http://purl.org/dc/terms/title> ?o }\"},");
+
 		statistic.append("{\"key\":\"total number of entities described by rdfs:label\",");
 		statistic.append("\"value\":\"SELECT (count(distinct ?s) AS ?no) { ?s <http://www.w3.org/2000/01/rdf-schema#label> ?o }\"},");
 
