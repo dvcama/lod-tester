@@ -63,13 +63,15 @@ public class SimpleCsvWriter {
 		Map<String, String> result = new LinkedHashMap<String, String>();
 
 		List<String> lines = FileUtils.readLines(csvFileBackup);
+		int count = 0;
 		for (String line : lines) {
-			if (!line.contains("unavailable")) {
+			if (!line.contains("unavailable") && count > 0) {
 				String endpoint = line.replaceAll("^\"(http://[^\"]+)\".*", "$1");
 				if (!endpoint.equals("")) {
 					result.put(endpoint, line);
 				}
 			}
+			count++;
 		}
 
 		return result;

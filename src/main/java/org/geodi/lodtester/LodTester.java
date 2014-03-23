@@ -1,9 +1,7 @@
 package org.geodi.lodtester;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -28,9 +26,6 @@ import org.geodi.lodtester.sparql.GetValues;
 import org.geodi.lodtester.tester.HttpTester;
 import org.geodi.lodtester.utils.SimpleCsvWriter;
 import org.geodi.lodtester.utils.SimpleEndpointLocator;
-
-import com.maxmind.geoip2.DatabaseReader;
-import com.maxmind.geoip2.model.CityResponse;
 
 public class LodTester {
 	SimpleCsvWriter csv;
