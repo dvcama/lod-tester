@@ -25,13 +25,15 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.geodi.lodtester.test.GetValues;
 import org.geodi.lodtester.test.HttpTester;
-import org.geodi.lodtester.test.SimpleCsvWriter;
+import org.geodi.lodtester.utils.SimpleCsvWriter;
+import org.geodi.lodtester.utils.SimpleEndpointLocator;
 
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
 
 public class SimpleTester {
 	SimpleCsvWriter csv;
+	SimpleEndpointLocator locator;
 
 	public static void main(String[] args) throws HttpException, IOException {
 		new SimpleTester().start(true);
@@ -40,6 +42,8 @@ public class SimpleTester {
 	private void start(boolean justErrors) throws HttpException, IOException {
 
 		csv = new SimpleCsvWriter(true);
+		locator = new SimpleEndpointLocator();
+
 		csv.writeIt("\"endpoint URI\",\"place\",\"enpoint is online\",\"test URI\",\"the endpoint hosts a page for humans\",\"the endpoint supports SPARQL content negotiation\",\"the endpoint supports JSONP calls\",\"the endpoint use port 80\",\"the endpoint URL is easy to deduce from resources\",\"the URI is online\",\"the URI supports content negotiation rdf+xml\",\"the resources and the endpoint are on the same domain\",\"total number of triples\",\"total number of entities\",\"total number of blankNodes\",\"total number of distinct classes\",\"total number of distinct predicates\",\"total number of entities described by dc:title\",\"total number of entities described by rdfs:label\",\"total number of entities described by dc:date\"");
 		csv.newLine();
 
@@ -61,10 +65,10 @@ public class SimpleTester {
 		endpoints.put("http://it.dbpedia.org/sparql", "");//
 		endpoints.put("http://spcdata.digitpa.gov.it:8899/sparql", "");
 		endpoints.put("http://dati.culturaitalia.it/sparql/", "");
-		endpoints.put("http://data.cnr.it/sparql-proxy", "");
 		endpoints.put("http://www.provincia.carboniaiglesias.it/sparql", "");
 		endpoints.put("http://linkeddata.comune.fi.it:8080/sparql", "");
 		endpoints.put("http://dati.acs.beniculturali.it/sparql", "");
+
 		int tot = endpoints.size();
 		int count = 1;
 		for (Map.Entry<String, String> endpoint : endpoints.entrySet()) {
@@ -102,36 +106,6 @@ public class SimpleTester {
 			System.out.println("fromBackup: " + line);
 		}
 		return endpointLines.keySet();
-	}
-
-	private void locateEndpoint(String key) {
-		try {
-			key = key.replaceAll("http://([^/:]+).*", "$1");
-			// A File object pointing to your GeoIP2 or GeoLite2 database
-			File database = new File("GeoLite2-Country.mmdb");
-
-			// This creates the DatabaseReader object, which should be reused
-			// across
-			// lookups.
-			DatabaseReader reader = new DatabaseReader.Builder(database).build();
-
-			// Replace "city" with the appropriate method for your database,
-			// e.g.,
-			// "country".
-			CityResponse response = reader.city(InetAddress.getByName(key));
-			String place = "";
-			System.out.print(response.getCountry().getName()); // 'United
-			place = response.getCountry().getName();
-			if (response.getMostSpecificSubdivision().getName() != null) {
-				System.out.println(" / " + response.getMostSpecificSubdivision().getName()); // 'Minnesota'
-				place += " / " + response.getMostSpecificSubdivision().getName();
-			}
-			csv.writeValueQuoted(place);
-		} catch (Exception e) {
-			System.out.println("unable to locate IP - " + e.getMessage());
-			csv.writeValueQuoted("");
-		}
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -209,7 +183,7 @@ public class SimpleTester {
 		System.out.println("--------------------\r\nendpoint: " + endpoint);
 		csv.writeValueQuoted(endpoint);
 		System.out.print("probably located in ");
-		locateEndpoint(endpoint);
+		csv.writeValueQuoted(locator.locateEndpoint(endpoint));
 		System.out.print("\r\n\r\nthe endpoint is online:\t\t\t\t\t***********\t\t");
 		boolean isOnline = false;
 		try {

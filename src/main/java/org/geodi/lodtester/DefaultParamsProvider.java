@@ -56,13 +56,13 @@ public final class DefaultParamsProvider {
 		statistic.append("{\"list\":[");
 
 		statistic.append("{\"key\":\"total number of triples\",");
-		statistic.append("\"value\":\"SELECT (COUNT(*) AS ?no) { ?s ?p []  }\"},");
+		statistic.append("\"value\":\"SELECT (COUNT(*) AS ?no) { ?s ?p ?o  }\"},");
 
 		statistic.append("{\"key\":\"total number of entities\",");
-		statistic.append("\"value\":\"SELECT (COUNT(?s) AS ?no) { ?s a []  }\"},");
+		statistic.append("\"value\":\"SELECT (COUNT(?s) AS ?no) { ?s a ?o  }\"},");
 
 		statistic.append("{\"key\":\"total number of blankNodes\",");
-		statistic.append("\"value\":\"SELECT (COUNT(distinct ?s) AS ?no) { ?s ?p [] FILTER(isBlank(?s)) }\"},");
+		statistic.append("\"value\":\"SELECT (COUNT(distinct ?s) AS ?no) { ?s ?p ?o FILTER(isBlank(?s)) }\"},");
 
 		// statistic.append("{\"key\":\"total number of distinct resource URIs in the same endpoint\",");
 		// statistic.append("\"value\":\"SELECT (COUNT(DISTINCT ?s ) AS ?no) { { ?s ?p ?o  } UNION { ?o ?p ?s } FILTER(!isBlank(?s) && !isLiteral(?s)) }\"},");
