@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -43,7 +44,7 @@ public class LodTester {
 		csv.writeIt("\"endpoint URI\",\"place\",\"enpoint is online\",\"test URI\",\"the endpoint hosts a page for humans\",\"the endpoint supports SPARQL content negotiation\",\"the endpoint supports JSONP calls\",\"the endpoint use port 80\",\"the endpoint URL is easy to deduce from resources\",\"the URI is online\",\"the URI supports content negotiation rdf+xml\",\"the resources and the endpoint are on the same domain\",\"total number of triples\",\"total number of entities\",\"total number of blankNodes\",\"total number of distinct classes\",\"total number of distinct predicates\",\"total number of entities described by dc:title\",\"total number of entities described by rdfs:label\",\"total number of entities described by dc:date\"");
 		csv.newLine();
 
-		Map<String, String> endpoints = new LinkedHashMap<String, String>();
+		Map<String, String> endpoints = new TreeMap<String, String>();
 		Set<String> onlineEndpoints = new TreeSet<String>();
 		ArrayList<String> testDomains = new ArrayList<String>();
 		Set<String> skipEndpoints = new HashSet<String>();
@@ -107,7 +108,7 @@ public class LodTester {
 	@SuppressWarnings("unchecked")
 	private static Map<String, String> populatheFromDataHub() throws HttpException, IOException {
 
-		Map<String, String> endpoints = new HashMap<String, String>();
+		Map<String, String> endpoints = new TreeMap<String, String>();
 		HttpClient client = new HttpClient();
 		GetMethod method = new GetMethod("http://datahub.io/api/2/search/resource?format=api/sparql&all_fields=1&limit=1000");
 		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
@@ -208,7 +209,7 @@ public class LodTester {
 			}
 			System.out.print("the endpoint hosts a page for humans:\t\t\t***********\t\t");
 			try {
-				if (HttpTester.testAvailability(endpoint, false, false)) {
+				if (HttpTester.testAvailability(endpoint, true, false)) {
 					System.out.println("PASS");
 					csv.writeValueUnquoted("true");
 				} else {
