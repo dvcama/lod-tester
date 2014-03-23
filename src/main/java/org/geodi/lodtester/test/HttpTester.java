@@ -22,7 +22,7 @@ public class HttpTester {
 		// Create a method instance.
 		GetMethod method = new GetMethod(endpointUrl);
 		// Provide custom retry handler is necessary
-		method.getParams().setSoTimeout(60000);
+		method.getParams().setSoTimeout(180000);
 		method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(2, false));
 		method.addRequestHeader("Accept", contentType);
 		try {
@@ -55,7 +55,7 @@ public class HttpTester {
 		if (anURI != null && !anURI.equals("")) {
 			HttpClient client = new HttpClient();
 			GetMethod method = new GetMethod(anURI + "&callback=dvcama");
-			method.getParams().setSoTimeout(60000);
+			method.getParams().setSoTimeout(180000);
 			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(2, false));
 			method.addRequestHeader("Accept", "application/sparql-results+json");
 			try {
@@ -80,7 +80,7 @@ public class HttpTester {
 		if (anURI != null && !anURI.equals("")) {
 			HttpClient client = new HttpClient();
 			GetMethod method = new GetMethod(anURI);
-			method.getParams().setSoTimeout(60000);
+			method.getParams().setSoTimeout(180000);
 			method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(2, false));
 			method.addRequestHeader("Accept", "text/html");
 			try {
@@ -96,7 +96,7 @@ public class HttpTester {
 					if (statusCode < 400) {
 						isOk = true;
 					} else {
-						if (just404 && statusCode == 404) {
+						if (just404 && statusCode == 404 || statusCode == 502 || statusCode == 503) {
 							isOk = false;
 						} else {
 							isOk = true;
