@@ -1,4 +1,4 @@
-package org.geodi.lodtester;
+package org.geodi.lodtester.sparql;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -23,20 +23,21 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.geodi.lodtester.test.GetValues;
-import org.geodi.lodtester.test.HttpTester;
+import org.geodi.lodtester.sparql.DefaultParamsProvider;
+import org.geodi.lodtester.sparql.GetValues;
+import org.geodi.lodtester.tester.HttpTester;
 import org.geodi.lodtester.utils.SimpleCsvWriter;
 import org.geodi.lodtester.utils.SimpleEndpointLocator;
 
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
 
-public class SimpleTester {
+public class LodTester {
 	SimpleCsvWriter csv;
 	SimpleEndpointLocator locator;
 
 	public static void main(String[] args) throws HttpException, IOException {
-		new SimpleTester().start(true);
+		new LodTester().start(true);
 	}
 
 	private void start(boolean justErrors) throws HttpException, IOException {
